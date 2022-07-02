@@ -1,0 +1,14 @@
+
+
+const database = 'ProductOrder';
+
+
+// Create a database.
+use(database);
+
+// Create collections.
+db.createCollection('Product');
+db.createCollection('Inventory');
+db.createCollection('User');
+db.createCollection('Order');
+

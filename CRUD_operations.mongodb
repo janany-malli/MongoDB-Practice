@@ -1,0 +1,39 @@
+//Getting into the database
+use ('ProductOrder');
+
+//Displaying the first 5 rows of the collections in the Database
+db.Product.find().limit(5);
+db.Inventory.find().limit(5);
+db.User.find().limit(5);
+db.Order.find().limit(5);
+
+//Displaying the Unique Brand and Model names from the Product collection
+db.Product.distinct('brand')
+db.Product.distinct('model')
+
+//Displaying Unique brand and their unique model names from the Product Collection
+db.Product.find({},{_id:0,model:1,brand:1}).sort({brand:1})
+
+//Displaying the maximum and minimum price of given products
+db.Product.find({},{_id:0,price:1}).sort({price:-1}).limit(1)            //maximum price : 150000
+
+db.Product.find({},{_id:0,price:1}).sort({price:1}).limit(1)             //minimum price : 62000
+
+//Displaying the quantity and last_updated date and time for sku "SNY-11001"
+db.Inventory.find({'sku':'SNY-11001'},{_id:0,quantity:1,last_updated:1})
+
+//Total number of users whose role is identified as 'Supplier' from User collection
+db.User.countDocuments({'role':'Supplier'})
+
+//Displaying 'sku', 'code', 'price', 'brand' and 'warranty' information for the model 'Bravia-X'
+db.Product.find({'model':'Bravia-X'},{_id:0,sku:1,code:1,price:1,brand:1,warranty:1})
+
+//Displaying Sony products which have a Price greater than 1 lakh 
+db.Product.find({$and:[{'brand':'Sony'},{'price':{$gt:100000}}]})
+
+
+//Total no of products by each Brand and sorting them in descending order.
+db.Inventory.aggregate([{$lookup:{from:"Product",localField:"sku",foreignField:"sku",as:"Products"}},{$group:{_id:"$Products.brand",totalQuantity:{$sum:"$quantity"}}},{$sort:{totalQuantity:-1}}])
+
+//Total no of users by each role, sorting them is descending order and saving the results in the temporary collection (tempCollection)
+db.User.aggregate([{$group:{_id:"$role",totalUsers:{$sum:1}}},{$sort:{totalUsers:-1}}]).forEach(function(tempDoc){db.tempCollection.insertOne(tempDoc);})
